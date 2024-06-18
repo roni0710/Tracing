@@ -6,8 +6,6 @@ import numpy as np
 import math
 NUMERICAL_ACCURACY = 1e-6
 
-
-# TODO surface orientation param
 class Sphere:
     __slots__ = ('radius', 'transform', 'b_param', 'd_param', 'k_param', 's_matrix', 'aperture_min', 'aperture_max')
 
@@ -53,7 +51,7 @@ def surface_normal(pos: Vector3, m_param: Matrix3, b_param: Vector3, d_param: Ve
    :param d_param:
    :return:
    """
-    return ((2.0 * Vector3.dot(m_param, pos - d_param)) + b_param).normalize()
+    return ((2.0 * Vector3.dot(m_param * pos, pos - d_param)) + b_param).normalize()
 
 
 def intersect_surface(ro: Vector3, rd: Vector3,
@@ -92,7 +90,6 @@ def raytrace_surface(ro: Vector3, rd: Vector3,
                      m_param: Matrix3, b_param: Vector3,
                      d_param: Vector3, k_param: float) -> Tuple[float, Vector3, Vector3]:
     """
-
     :param ro:
     :param rd:
     :param m_param:
@@ -184,117 +181,19 @@ def draw_ray(ro: Vector3, rd: Vector3, t: float, axis=None) -> None:
     axis = axis if axis else plt.axes(projection='3d')
     axis.plot((x, x1), (y, y1), (z, z1))
 
-# def make_sphere(r: float, pos: Vector3):
-#     return {'r': r, 'b_param': Vector3(0, 0, 0)}
-#     return dict(r=r, transform=..., b_param=Vector3(0, 0, 0), d_param=Vector3(0, 0, -r), k_param=-1,
-#                 beta=r - Vector3(0, 0, -r))
-#
-#
-# def trace_ray(ray_origin: Vector3, ray_direction: Vector3, sphere_obj: dict):
-#     transform = sphere_obj['transform']
-#     b_param = sphere_obj['b_param']
-#     d_param = sphere_obj['d_param']
-#     k_param = sphere_obj['k_param']
-#     beta = sphere_obj['beta']
-#     ray_direction = Vector3(0.0, 0.0, 1.0)
-#     ray_origin = Vector3(0.0, 0.0, 1.0)
-#     ray = ray_origin + ray_direction * transform
-    # a = b = c = sphere_obj['r']
-    # A = Matrix3([1 / a * a, 0, 0], [0, 1 / b * b, 0], [0, 0, 1 / c * c])
-    # sphere = Matrix3.transpose(beta) * A * beta + 2 * (Matrix3.transpose(b_param) * beta) + k_param
-    #
-    # a_koef = Matrix3.transpose(ray_direction) * A * ray_direction
-    # b_koef = 2 * Matrix3.transpose(ray_direction) * A * ray_origin - Matrix3.transpose(
-    #     ray_direction) * A * d_param - Matrix3.transpose(d_param) * A * ray_direction + 2 * Matrix3.transpose(
-    #     b_param) * ray_direction
-    # c_koef = Matrix3.transpose(ray_origin) * A * ray_origin - 2 * Matrix3.transpose(
-    #     d_param) * A * ray_origin + Matrix3.transpose(d_param) * A * d_param - 2 * Matrix3.transpose(
-    #     b_param) * ray_origin - 2 * Matrix3.transpose(b_param) * d_param + k_param
-    # D = b_koef * b_koef - 4 * a_koef * c_koef
-    # t = (-b_koef + np.sqrt(D)) / 2 * a_koef
-    #
-    # return t
-
-
-# def surface_construction(r, A, k_param=-1):
-#     phi = np.linspace(0, np.pi, 100)  # Создаем сетку для построения поверхности
-#     theta = np.linspace(0, 2 * np.pi, 100)
-#     phi, theta = np.meshgrid(phi, theta)
-#
-#     X = r * np.sin(phi) * np.cos(theta)  # Вычисляем X, Y, Z координаты для поверхности сферы с матрицей A
-#     Y = r * np.sin(phi) * np.sin(theta)
-#     Z = r * np.cos(phi)
-#
-#     coords = np.array([X.flatten(), Y.flatten(), Z.flatten()]).T  # Преобразуем координаты через матрицу A
-#     A_sph = np.sum(coords[:, None, :] * A, axis=- 1) * coords
-#     sphere = np.sum(A_sph * coords, axis=- 1) + k_param
-#     return X, Y, Z
-
-
-# def drawing_surface(X, Y, Z, ray_origin, ray):
-#     fig = plt.figure()
-#     ax = fig.add_subplot(111, projection='3d')
-#     ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='viridis', alpha=0.6)
-#     ax.plot([ray_origin.x, ray.x], [ray_origin.y, ray.y], [ray_origin.z, ray.z], color='red', marker='o')
-#     ax.set_xlabel('X')
-#     ax.set_ylabel('Y')
-#     ax.set_zlabel('Z')
-#     ax.set_title('Sphere Surface')
-#     return plt.show()
-#
-#
-# def draw_rays(ray_list, sphere_obj, ax):
-#     """Отрисовывает лучи на графике."""
-#     for ray_origin, ray_direction in ray_list:
-#         t = trace_ray(ray_origin, ray_direction, sphere_obj)
-#         if t is not None:
-#             Точка пересечения
-            # intersection_point = ray_origin + ray_direction * t
-            # Отрисовываем луч
-            # ax.plot([ray_origin.x, intersection_point.x], [ray_origin.y, intersection_point.y],
-            #         [ray_origin.z, intersection_point.z], color='blue', linewidth=0.5)
-
-
-# def visualize_rays(ray_list, sphere_obj):
-#     """Визуализирует лучи и сферу."""
-#     fig = plt.figure()
-#     ax = fig.add_subplot(111, projection='3d')
-#
-#     Отрисовываем сферу
-    # X, Y, Z = surface_construction(sphere_obj['r'], sphere_obj['transform'], sphere_obj['k_param'])
-    # ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='viridis', alpha=0.6)
-    #
-    # Отрисовываем лучи
-    # draw_rays(ray_list, sphere_obj, ax)
-    #
-    # ax.set_xlabel('X')
-    # ax.set_ylabel('Y')
-    # ax.set_zlabel('Z')
-    # ax.set_title('Sphere and Rays')
-    # plt.show()
 
 if __name__ == "__main__":
     surf = Sphere(-16)
     ro = Vector3(1.0, 1.0, 1.0)
     rd = Vector3(1.0, 1.0, 1.0)
     t, re, rn = trace_ray(ro, rd, surf)
-    draw_surf(surf)
-    draw_ray(ro, rd, t)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    draw_surf(surf, ax)
+    draw_ray(ro, rd, t, ax)
     plt.show()
-    # TODO trace ray =)
+
     exit()
     tracing_2d_test()
     visualize_rays(ray_list, sphere_obj)
-    # ray_origin = Vector3(0, 0, 5)  # Начальная точка луча
-    # ray_direction = Vector3(0, 0, -1)  # Направление луча
-    #
-    # sphere_obj = make_sphere(2, Vector3(0, 0, 0))  # Создаем сферу
-    #
-    # Создаем несколько лучей вручную (пример)
-    # ray_list = [
-    #     (ray_origin, ray_direction),
-    #     (ray_origin + Vector3(0.5, 0, 0), ray_direction),
-    #     (ray_origin + Vector3(-0.5, 0, 0), ray_direction),
-    #     (ray_origin + Vector3(0, 0.5, 0), ray_direction), ]
-
-    # Отрисовываем сферу и лучи
